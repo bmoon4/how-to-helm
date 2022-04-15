@@ -97,9 +97,11 @@ kubectl port-forward svc/airflow-flower 5555:5555 --namespace airflow
 ```
 
 ```
-localhost:8080
+localhost:8080 -> Airflow Webserver GUI
+localhost:5555 -> Airflow Flower GUI
 ```
 ![Screenshot](local_airflow.png)
+![Screenshot](local_flower.png)
 
 ### Upgrading the Chart
 ```
