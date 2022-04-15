@@ -12,12 +12,12 @@ helm upgrade --install airflow apache-airflow/airflow --namespace airflow --crea
 ```
 
 ```
-how-to-helm on  main 
+how-to-helm on  main
 ❯ helm repo add apache-airflow https://airflow.apache.org
 "apache-airflow" has been added to your repositories
 ```
 ```
-how-to-helm on  main [!] 
+how-to-helm on  main [!]
 ❯ helm upgrade --install airflow apache-airflow/airflow --namespace airflow --create-namespace
 Release "airflow" does not exist. Installing it now.
 NAME: airflow
@@ -112,3 +112,91 @@ helm upgrade airflow apache-airflow/airflow --namespace airflow
 ```
 helm delete airflow --namespace airflow
 ```
+## Helm Chart for Apache Spark (Bitnami)
+
+### Adding bitnami helm repo
+```
+helm repo add bitnami https://charts.bitnami.com/bitnami
+```
+
+```
+❯ helm repo add bitnami https://charts.bitnami.com/bitnami
+"bitnami" has been added to your repositories
+```
+
+### Installing the Chart
+```
+helm install my-release bitnami/spark
+
+or
+
+helm upgrade --install spark  bitnami/spark --namespace spark --create-namespace
+```
+
+
+```
+❯ helm upgrade --install spark  bitnami/spark --namespace spark --create-namespace
+Release "spark" does not exist. Installing it now.
+NAME: spark
+LAST DEPLOYED: Thu Apr 14 21:11:56 2022
+NAMESPACE: spark
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+CHART NAME: spark
+CHART VERSION: 5.9.9
+APP VERSION: 3.2.1
+
+** Please be patient while the chart is being deployed **
+
+1. Get the Spark master WebUI URL by running these commands:
+
+  kubectl port-forward --namespace spark svc/spark-master-svc 80:80
+  echo "Visit http://127.0.0.1:80 to use your application"
+
+2. Submit an application to the cluster:
+
+  To submit an application to the cluster the spark-submit script must be used. That script can be
+  obtained at https://github.com/apache/spark/tree/master/bin. Also you can use kubectl run.
+
+  export EXAMPLE_JAR=$(kubectl exec -ti --namespace spark spark-worker-0 -- find examples/jars/ -name 'spark-example*\.jar' | tr -d '\r')
+
+  kubectl exec -ti --namespace spark spark-worker-0 -- spark-submit --master spark://spark-master-svc:7077 \
+    --class org.apache.spark.examples.SparkPi \
+    $EXAMPLE_JAR 5
+
+** IMPORTANT: When submit an application from outside the cluster service type should be set to the NodePort or LoadBalancer. **
+
+** IMPORTANT: When submit an application the --master parameter should be set to the service IP, if not, the application will not resolve the master. **
+
+```
+### Port forwarding
+
+```
+kubectl port-forward --namespace spark svc/spark-master-svc 80:80
+
+❯ kubectl port-forward --namespace spark svc/spark-master-svc 80:80
+Unable to listen on port 80: Listeners failed to create with the following errors: [unable to create listener: Error listen tcp4 127.0.0.1:80: bind: permission denied unable to create listener: Error listen tcp6 [::1]:80: bind: permission denied]
+error: unable to listen on any of the requested ports: [{80 8080}]
+
+# use sudo
+❯ sudo kubectl port-forward --namespace spark svc/spark-master-svc 80:80
+Password:
+Forwarding from 127.0.0.1:80 -> 8080
+Forwarding from [::1]:80 -> 8080
+
+```
+
+
+```
+❯ k get po -n spark
+NAME             READY   STATUS    RESTARTS      AGE
+spark-master-0   1/1     Running   0             8m20s
+spark-worker-0   1/1     Running   1 (90s ago)   8m20s
+spark-worker-1   1/1     Running   0             58s
+```
+```
+http://127.0.0.1:80
+```
+![Screenshot](spark_gui.png)
