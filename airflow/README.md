@@ -5,33 +5,32 @@ Since the base image from `Apache Airflow Helm Chart 1.5.0` does not include the
 ```
 FROM apache/airflow:2.2.4
 
+RUN pip install apache-airflow-providers-apache-spark
+
 USER root
 
-RUN pip install apache-airflow-providers-apache-spark --no-cache-dir
+RUN apt-get update \
+  && apt-get install -y openjdk-11-jdk \
+  && apt-get install -y ant \
+  && apt-get install -y vim \
+  && apt-get install -y --no-install-recommends \
+  && apt-get autoremove -yqq --purge \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
 
-# Install OpenJDK-11
-# You need to install java to avoid error: `JAVA_HOME is not set`
-# Ref: https://stackoverflow.com/questions/67554074/airflow-trigger-spark-in-different-docker-container
+# Set JAVA_HOME; need Java to run Spark. Make sure this version matches the one on Spark
+# Currently, we're using Spark:3.1.2 which depends on the JDK build 1.8.0
+ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-amd64/
+RUN export JAVA_HOME
 
-RUN apt update && \
-    apt-get install -y openjdk-11-jdk && \
-    apt-get install -y ant && \
-    apt-get clean;
+USER airflow
 
-# Set JAVA_HOME
-RUN export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64/
 
 ```
+### What happens if your aiflow doesn't have java - DAG Failure
 ![Screenshot](images/../../images/error_java_is_not_set.png)
 
-Make sure JAVA_HOME is there
-```
-❯ k -n airflow exec -it airflow-worker-0 -- /bin/bash
-Defaulted container "worker" out of: worker, worker-log-groomer, wait-for-airflow-migrations (init)
-airflow@airflow-worker-0:/app$ ls
-airflow@airflow-worker-0:/app$ echo $JAVA_HOME
-/usr/lib/jvm/java-11-openjdk-amd64/
-```
+
 ### Docker pull
 ```
 docker pull apache/airflow:2.2.4
@@ -57,14 +56,21 @@ docker.io/apache/airflow:2.2.4
 ### Docker build
 ```
 # docker build -t myImageName:TagName dir
-docker build -t bmoon0702/airflow:2.2.4-openjdk-11-jdk .
+docker build -t bmoon0702/airflow:2.2.4-openjdk-11 .
 [+] Building 556.2s (8/8) FINISHED
 ...
 ...
 ```
+```
+❯ docker images
+REPOSITORY          TAG                    IMAGE ID       CREATED          SIZE
+bmoon0702/airflow   2.2.4-openjdk-11       5db37cbcd962   8 seconds ago    2.61GB
+kindest/node        <none>                 f9d67d6e8342   6 weeks ago      1.21GB
+apache/airflow      2.2.4                  88fe05822640   7 weeks ago      1.07GB
+```
 ### Docker push to your docker.io repo
 ```
-❯ docker push bmoon0702/airflow:2.2.4-openjdk-11-jdk
+❯ docker push bmoon0702/airflow:2.2.4-openjdk-11
 The push refers to repository [docker.io/bmoon0702/airflow]
 d3a68e677f4c: Pushed
 5f70bf18a086: Mounted from apache/airflow
@@ -91,7 +97,7 @@ f18b02b14138: Mounted from apache/airflow
 images:
   airflow:
     repository: bmoon0702/airflow
-    tag: 2.2.4-openjdk-11-jdk
+    tag: 2.2.4-openjdk-11
     pullPolicy: IfNotPresent
 ...
 ```
@@ -101,3 +107,17 @@ helm upgrade --install airflow apache-airflow/airflow --values=values.yaml --nam
 
 ```
 ![Screenshot](images/../../images/spark_connection.png)
+
+## Note
+
+Make sure JAVA_HOME is there
+```
+❯ k -n airflow exec -it airflow-scheduler-6b7b644c94-ggvtx -- /bin/bash
+Defaulted container "scheduler" out of: scheduler, scheduler-log-groomer, wait-for-airflow-migrations (init)
+airflow@airflow-scheduler-6b7b644c94-ggvtx:/opt/airflow$ echo $JAVA_HOME
+/usr/lib/jvm/java-11-openjdk-amd64/
+```
+and Spark packages
+```
+
+```
