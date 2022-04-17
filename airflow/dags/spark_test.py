@@ -1,14 +1,11 @@
-from datetime import timedelta, datetime
+from datetime import datetime
 from airflow.models import DAG
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.providers.apache.spark.operators.spark_submit import SparkSubmitOperator
 
-
 default_args = {
 		'owner': 'Moon',
 		'start_date': datetime(2022, 3, 4),
-		'retries': 3,
-		'retry_delay': timedelta(minutes=1)
 }
 
 # Instantiate a DAG object
@@ -25,12 +22,14 @@ start_task = DummyOperator(
     dag=dag
     )
 
-hello_spark_task = SparkSubmitOperator(
-    task_id="spark",
+submit_job = SparkSubmitOperator(
     conn_id="spark_default",
     java_class="org.apache.spark.examples.SparkPi",
-    application="/opt/bitnami/spark/examples/jars/spark-examples_2.12-3.2.1.jar",
+    application="/opt/airflow/dags/jars/spark-examples_2.12-3.2.1.jar",
+    task_id="submit_job",
     application_args=["5"],
+    verbose=True,
+    name='SparkPi',
     dag=dag
 )
 
@@ -39,4 +38,4 @@ end_task = DummyOperator(
     dag=dag
     )
 
-start_task >> hello_spark_task >> end_task
+start_task >> submit_job >> end_task
