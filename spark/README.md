@@ -202,5 +202,5 @@ Pi is roughly 3.1455262910525823
 22/04/15 01:34:29 INFO ShutdownHookManager: Deleting directory /tmp/spark-51d9a1f1-4ec7-44ef-99f3-453aaadb03bb
 22/04/15 01:34:29 INFO ShutdownHookManager: Deleting directory /tmp/spark-35585a78-9b3c-4c54-808e-524f6b08eeee
 ```
-![Screenshot](spark_running.png)
-![Screenshot](spark_completed.png)
+![Screenshot](images/../../images/spark_running.png)
+![Screenshot](images/../../images/spark_completed.png)

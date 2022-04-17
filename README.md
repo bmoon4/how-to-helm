@@ -100,8 +100,8 @@ kubectl port-forward svc/airflow-flower 5555:5555 --namespace airflow
 localhost:8080 -> Airflow Webserver GUI
 localhost:5555 -> Airflow Flower GUI
 ```
-![Screenshot](local_airflow.png)
-![Screenshot](local_flower.png)
+![Screenshot](images/local_airflow.png)
+![Screenshot](images/local_flower.png)
 
 ### Upgrading the Chart
 ```
@@ -199,4 +199,4 @@ spark-worker-1   1/1     Running   0             58s
 ```
 http://127.0.0.1:80
 ```
-![Screenshot](spark_gui.png)
+![Screenshot](images/spark_gui.png)

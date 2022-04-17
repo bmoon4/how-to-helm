@@ -29,4 +29,4 @@ airflow@airflow-scheduler-d4f656459-hkbgm:/opt/airflow/dags$ ls
 test.py
 
 ```
-![Screenshot](dag_sample.png)
+![Screenshot](images/../../../images/dag_sample.png)
