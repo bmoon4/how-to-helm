@@ -124,6 +124,11 @@ This is running in `--deploy-mode client` not `--deploy-mode cluster`
 --deploy-mode: Whether to deploy your driver on the worker nodes (cluster) or locally as an external client (client) (default: client)
 ```
 
+BTW, what is driver in Spark world??
+```
+driver is the process running the main() function of the application and creating the SparkContext
+```
+
 ### Problem when using `--deploy-mode cluster`
 ```
 [2022-04-18, 04:19:17 UTC] {spark_submit.py:488} INFO - 22/04/18 04:19:17 INFO ClientEndpoint: Driver successfully submitted as driver-20220418041917-0008
@@ -141,5 +146,9 @@ From my understanding, this driver and `.jar` file should be running in the spar
 With `--deploy-mode client`, driver sits in the Airflow worker (not the Spark worker) and it uses its Airflow's JAVA_HOME (/usr/lib/jvm/java-11-openjdk-amd64) which is absolutely available.
 
 Since switching to `--deploy-mode client` I have not experienced any issues.
+
+
+Note that in client mode -> `only the driver runs locally(i.e, Airflow worker)` and `all tasks run on cluster worker nodes`.
+
 
 More read : https://blog.knoldus.com/cluster-vs-client-execution-modes-for-a-spark-application/
