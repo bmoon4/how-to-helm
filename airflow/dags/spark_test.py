@@ -25,11 +25,16 @@ start_task = DummyOperator(
 submit_job = SparkSubmitOperator(
     conn_id="spark_default",
     java_class="org.apache.spark.examples.SparkPi",
-    application="/opt/airflow/dags/jars/spark-examples_2.12-3.2.1.jar",
+    application="/opt/airflow/dags/jars/spark-examples_2.12-3.2.1.jar", # deploy-mode : client
+    #application="/opt/bitnami/spark/examples/jars/spark-examples_2.12-3.2.1.jar", # deploy-mode : cluster -> does not work
     task_id="submit_job",
-    application_args=["5"],
+    application_args=["1"],
     verbose=True,
     name='SparkPi',
+    executor_cores=2,
+    num_executors=2,
+    driver_memory="600m",
+    executor_memory="600m",
     dag=dag
 )
 

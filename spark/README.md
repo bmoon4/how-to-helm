@@ -1,3 +1,56 @@
+# Build a custom docker image
+## Dockerfile
+```
+FROM bitnami/spark:3.2.1
+
+USER root
+
+RUN apt-get update \
+  && apt-get install -y openjdk-11-jdk \
+  && apt-get install -y ant \
+  && apt-get install -y vim \
+  && apt-get install -y --no-install-recommends \
+  && apt-get autoremove -yqq --purge \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
+
+# Set JAVA_HOME; need Java to run Spark. Make sure this version matches the one on Airflow
+ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-amd64
+ENV PATH=/opt/bitnami/python/bin:/usr/lib/jvm/java-11-openjdk-amd64:/opt/bitnami/spark/bin:/opt/bitnami/spark/sbin:/opt/bitnami/common/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+RUN export JAVA_HOME && \
+    echo 'JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64' >> /etc/environment && \
+    echo 'JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64' >> /opt/bitnami/spark/conf/spark-env.sh
+
+RUN chown 1001 -R /etc/environment && \
+    chown 1001 -R /opt/bitnami/spark/conf/spark-env.sh
+
+```
+## Docker build
+```
+docker build -t bmoon0702/spark-custom:3.2.1 .
+[+] Building 95.9s (8/8)
+...
+...
+=> => naming to docker.io/bmoon0702/spark-custom:3.2.1
+```
+
+## Docker push
+```
+❯ docker push bmoon0702/spark-custom:3.2.1
+The push refers to repository [docker.io/bmoon0702/spark-custom]
+780c8eace3b8: Pushed
+da256b840298: Pushed
+db73c9051a0c: Mounted from bitnami/spark
+5bc32f099385: Mounted from bitnami/spark
+...
+
+```
+
+# Spin up spark with a custom image
+```
+helm upgrade --install spark  bitnami/spark  --values=values.yaml --namespace spark --create-namespace
+```
 
 # Submit an application to the Spark cluster
 
